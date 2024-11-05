@@ -2,19 +2,22 @@
     <v-container fluid>
         <v-row>
             <v-col cols="12" class="d-flex justify-end align-center pb-2">
-                <v-btn @click="dialog=true" rounded color="primary" flat>Yaratish</v-btn>
+                <v-btn @click="dialog=true" color="primary" flat>Yaratish</v-btn>
             </v-col>
             <v-col cols="12">
-                <v-card rounded="xl" flat>
+                <v-card flat border>
                     <v-card-text class="px-1">
                         <v-data-table :items="items" :headers="headers" items-per-page="-1">
                             <template #bottom></template>
+                            <template #item.price="{item}">
+                                <price :value="item.price" />
+                            </template>
                             <template #item.actions="{item,index}">
                                 <div class="d-flex ga-2">
-                                    <v-btn size="40" color="primary" rounded flat @click="editItem(item, index)">
+                                    <v-btn size="40" color="primary" flat @click="editItem(item, index)">
                                         <BxSolidPencil style="width: 20px; height: 20px;" />
                                     </v-btn>
-                                    <v-btn size="40" color="primary" rounded flat @click="deleteItem(item.id, index)">
+                                    <v-btn size="40" color="primary" flat @click="deleteItem(item.id, index)">
                                         <MdRoundDelete style="width: 20px; height: 20px;" />
                                     </v-btn>
                                 </div>
@@ -31,20 +34,20 @@
             <v-card-text>
                 <v-row>
                     <v-col cols="12">
-                        <v-text-field color="primary" rounded variant="outlined" flat v-model="item.name" hide-details label="Nomi"></v-text-field>
+                        <v-text-field color="primary" variant="outlined" flat v-model="item.name" hide-details label="Nomi"></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                        <v-text-field color="primary" rounded variant="outlined" flat v-model="item.price" hide-details label="Narxi" min="0" type="number"></v-text-field>
+                        <v-text-field color="primary" variant="outlined" flat v-model="item.price" hide-details label="Narxi" min="0" type="number"></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                        <v-select color="primary" rounded variant="outlined" flat v-model="item.category" :items="categories" item-title="name" item-value="name" hide-details label="Kategoriya" clearable>
+                        <v-select color="primary" variant="outlined" flat v-model="item.category" :items="categories" item-title="name" item-value="name" hide-details label="Kategoriya" clearable>
                             <template #selection="{item}">
                                 <span>{{ item.raw.parent }}: {{ item.raw.name }}</span>
                             </template>
                         </v-select>
                     </v-col>
                     <v-col cols="12">
-                        <v-btn height="50" @click="save" color="primary" variant="flat" rounded block>Saqlash</v-btn>
+                        <v-btn height="50" @click="save" color="primary" variant="flat" block>Saqlash</v-btn>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -57,6 +60,7 @@
 import { Food } from '@/types'
 import { ref, reactive } from 'vue'
 import { categories } from '@/constants'
+import Price from '@/components/price.vue'
 import { MdRoundDelete, BxSolidPencil } from '@kalimahapps/vue-icons'
 import { getFoods, deleteFood, createFood, updateFood } from '@/api/food'
 

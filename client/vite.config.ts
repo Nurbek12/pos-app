@@ -13,6 +13,8 @@ export default defineConfig({
         enabled: false,
       },
       workbox: {
+        // clientsClaim: true,
+        // skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}"],
         cleanupOutdatedCaches: false,
       },
@@ -93,5 +95,5 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "./src"),
     },
-  },
+  }
 });

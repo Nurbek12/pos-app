@@ -1,0 +1,83 @@
+<template>
+    <v-container fluid>
+        <v-row>
+            <v-col cols="12">
+                <v-card flat border>
+                    <v-card-text class="pa-1">
+                        <v-data-table
+                            :loading="loading"
+                            @update:options="loadItems"
+                            density="comfortable"
+                            hover
+                            :items="items"
+                            color="primary"
+                            items-per-page="-1"
+                            :headers="headers"
+                            item-value="id">
+                            <template #item.date="{item}">
+                                <span>{{ new Date(item.createdAt).toLocaleString() }}</span>
+                            </template>
+                            <template #item.id="{item}">
+                                <span>#{{ item.dailyNum.toString().padStart(6, '0') }}</span>
+                            </template>
+                            <template #item.total="{item}">
+                                <price :value="item.total" />
+                            </template>
+                            <template #item.actions="{index}">
+                                <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-subtitle-1" density="comfortable">
+                                    Ko'rish
+                                </v-btn>
+                            </template>
+                            <template #bottom></template>
+                        </v-data-table>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
+    <v-dialog :model-value="viewIndex!==null" @update:model-value="viewIndex=null" max-width="500">
+        <OrderCard v-if="viewIndex!==null" :order="(items[viewIndex!] as any)" @close-card="completeOrder" />
+    </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { IOrder } from '@/types'
+import Price from '@/components/price.vue'
+import { onOrderCreated } from '@/api/socket'
+import OrderCard from '@/components/order-card.vue'
+import { getOrders, updateOrder } from '@/api/order'
+
+const loading = ref(true)
+const items = ref<IOrder[]>([])
+const viewIndex = ref<number|null>(null)
+
+const headers = ref([
+    { title: 'ID', key: 'id', sortable: false },
+    { title: 'Buyurtma narxi', key: 'total', sortable: false },
+    { title: 'Stol Raqami', key: 'address', sortable: false },
+    { title: 'Sana/Vaqt', key: 'date', sortable: false },
+    { title: 'Boshqarish', key: 'actions', sortable: false },
+])
+
+const loadItems =  async () => {
+    loading.value = true
+    const { data } = await getOrders({
+        page: 1,
+        limit: 1000,
+        status: "CREATED",
+    })
+    items.value = data.result as any
+    loading.value = false
+}
+
+const completeOrder = async () => {
+    await updateOrder(items.value[viewIndex.value!].id, { status: "COMPLETED" })
+    items.value.splice(viewIndex.value!, 1)
+    viewIndex.value=null
+}
+
+onOrderCreated((order: IOrder) => {
+    items.value.unshift(order)
+})
+</script>

@@ -1,71 +1,100 @@
-import { Order, OrderItem, Food } from '@prisma/client'
-import { ThermalPrinter, PrinterTypes, CharacterSet, BreakLine } from 'node-thermal-printer'
+import escpos from 'escpos'
+import { IOrder, LETTER_SIZE, orderTypesObject, orderTypesServices, truncateName } from './constants'
 
-interface IOrder extends Order {
-    orderItems: (OrderItem & {food: Food})[]
+escpos.USB = require('escpos-usb'); 
+
+
+const device = new escpos.USB(); 
+const options = { encoding: "GB18030" };
+
+const adminPrinter = new escpos.Printer(device, options);
+const chefPrinter = new escpos.Printer(device, options);
+
+export const printAdmin = (order: IOrder) => {
+    const printer = adminPrinter
+
+    device.open((error) => {
+      if (error) {
+        console.error("Ошибка подключения к принтеру:", error);
+        return;
+      }
+
+      const date = order.createdAt;
+      const formattedDate = date.toLocaleDateString('en-GB');
+      const formattedTime = date.toLocaleTimeString('en-GB');
+
+      printer
+        .align('CT')
+        .style('B')
+        .size(1, 2)
+        .text("FISH & CHICKEN")
+        .text(`Buyurtma: ${order.dailyNum}-${order.address}`)
+        .text(`Kun: ${formattedDate}`)
+        .text(`Soat: ${formattedTime}`)
+        .text('*'.repeat(LETTER_SIZE))
+        .size(1, 1)
+        .text(`Stol: ${order.address}`)
+        .text('*'.repeat(LETTER_SIZE));
+
+      order.orderItems.forEach(item => {
+        const itemName = truncateName(item.food.name, 20); // Adjust maxLength as needed
+        const quantity = item.quantity;
+        const price = item.food.price.toFixed(2);
+        const total = (quantity * item.food.price).toFixed(2);
+
+        const itemLine = `${itemName.padEnd(20)}${quantity}x`.padEnd(24) + `${price} $`.padStart(6) + `${total} $`.padStart(10);
+        printer.text(itemLine);
+      });
+
+      // const serviceCharge = (order.total * order.serviceCharge).toFixed(2);
+      const totalAmount = (order.total).toFixed(2);
+
+      printer
+        .text('*'.repeat(LETTER_SIZE))
+        .text(`Xizmat kursatish 5%`.padEnd(13))
+        .text(`Jami:`.padEnd(25) + `${totalAmount} $`.padStart(8))
+        .cut()
+        .close();
+  })
 }
 
-export const printer1 = new ThermalPrinter({
-  type: PrinterTypes.STAR,                                  // Printer type: 'star' or 'epson'
-  interface: '/dev/usb/lp0',                       // Printer interface
-  characterSet: CharacterSet.PC852_LATIN2,                  // Printer character set
-  removeSpecialCharacters: false,                           // Removes special characters - default: false
-  lineCharacter: "=",                                       // Set character for lines - default: "-"
-  breakLine: BreakLine.WORD,                                // Break line after WORD or CHARACTERS. Disabled with NONE - default: WORD
-  options:{                                                 // Additional options
-    timeout: 5000                                           // Connection timeout (ms) [applicable only for network printers] - default: 3000
-  }
-})
+export const printChef = (order: IOrder) => {
+  const printer = chefPrinter
 
-export const printer2 = new ThermalPrinter({
-    type: PrinterTypes.STAR,                                  // Printer type: 'star' or 'epson'
-    interface: '/dev/usb/lp1',                       // Printer interface
-    characterSet: CharacterSet.PC852_LATIN2,                  // Printer character set
-    removeSpecialCharacters: false,                           // Removes special characters - default: false
-    lineCharacter: "=",                                       // Set character for lines - default: "-"
-    breakLine: BreakLine.WORD,                                // Break line after WORD or CHARACTERS. Disabled with NONE - default: WORD
-    options:{                                                 // Additional options
-      timeout: 5000                                           // Connection timeout (ms) [applicable only for network printers] - default: 3000
+  device.open((error) => {
+    if (error) {
+      console.error("Ошибка подключения к принтеру:", error);
+      return;
     }
-})
 
-export const generatedFunction = (n: number) => {
-    var letterIndex = Math.floor((n - 1) / 99);
-    var letter = String.fromCharCode((letterIndex % 26) + 65);
-    var number = ((n - 1) % 99) + 1;
-    return letter + '-' + number;
-}
+    const date = order.createdAt;
+    const formattedDate = date.toLocaleDateString('en-GB');
+    const formattedTime = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-export const printPaper = (order:  IOrder, printer: ThermalPrinter) => {
-    printer.alignCenter();
-    printer.println('Fish & Chicken');
-    printer.alignLeft();
-
-    printer.println(`Номер Заказа: ${generatedFunction(order.id)}`);
-    printer.println(`Дата: ${order.created_at.toLocaleDateString()}`);
-    printer.println(`Время: ${order.created_at.toLocaleTimeString()}`);
-    printer.println(`Номер стола: ${order.table}`);
-    printer.println('--------------------------------');
-    printer.println('Блюда       кол-во  цена  общая');
-    printer.println('--------------------------------');
+    printer
+      .align('CT')
+      .style('B')
+      .size(1, 2)
+      .text("FISH & CHICKEN")
+      .text(`# ${order.address}-${order.dailyNum}`)
+      .text('*'.repeat(LETTER_SIZE)) // 37 to match total width including borders
+      .size(1, 1);
 
     order.orderItems.forEach(item => {
-        printer.println(`${item.food.name.padEnd(15)} ${item.quantity.toString().padEnd(5)} ${item.food.price.toString().padEnd(5)} ${(item.quantity * item.food.price).toString().padEnd(5)}`);
+      const itemName = truncateName(item.food.name, 20); // Adjust maxLength as needed
+      const quantity = item.quantity;
+      const itemLine = `${itemName.padEnd(20)}${quantity}x`.padEnd(LETTER_SIZE); // Ensure the line fits in 32 characters
+      printer.text(itemLine);
     });
 
-    printer.println('--------------------------------');
-    printer.println(`Общая цена:          ${order.total}`);
-    printer.println('--------------------------------');
-    printer.println('Спасибо, что пообедали с нами!');
-
-
-    printer1.cut();
-    printer1.execute()
-        .then(v => {
-            console.log('Принтер работал', v)
-        })
-        .catch(err => {
-            console.log(err)
-        });
-
+    printer
+      .text('*'.repeat(LETTER_SIZE)) // Footer line
+      .align('CT')
+      .text(formattedTime) // Right align the time
+      .text('*'.repeat(LETTER_SIZE)) // Divider line
+      .align('CT')
+      .text(formattedDate) // Right align the date
+      .cut()
+      .close();
+  })
 }

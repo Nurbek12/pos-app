@@ -14,41 +14,45 @@ model Food {
   name String
   sold Int @default(0)
 
-  category String
+  category String 
   orderItems OrderItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("food")
 }
 
 model Order {
   id Int @id @default(autoincrement())
   
   total Int
+  address String
+  serviceCharge Int @default(0) @map("service_charge")
+  dailyNum Int @map("daily_num")
   status String @default("CREATED")
-  table Int
-  archive Boolean @default(false)
-  completed Boolean @default(false)
+  type String @default("TABLE") // DELIVERY ONESELF
 
   orderItems OrderItem[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("order")
 }
 
 model OrderItem {
   id Int @id @default(autoincrement())
   
-  orderId Int?
+  orderId Int? @map("order_id")
   order Order? @relation(fields: [orderId], references: [id])
 
-  foodId Int
+  foodId Int @map("food_id")
   food Food @relation(fields: [foodId], references: [id])
 
   quantity Int
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("order_items")
 }
 
 model Admin {

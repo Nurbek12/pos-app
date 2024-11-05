@@ -1,7 +1,7 @@
 <template>
-    <v-navigation-drawer class="border-none rounded-e-xl" v-model="drawer" :rail="true" permanent width="250" elevation="0" :expand-on-hover="true">
+    <v-navigation-drawer v-model="drawer" :rail="true" permanent width="250" elevation="0" :expand-on-hover="true">
         <v-list :lines="false" nav variant="flat">
-            <v-list-item exact active-class="text-white rounded-l" class="rounded-e-xl" link v-for="link, i in links" :key="i" :to="link.url" color="primary">
+            <v-list-item exact active-class="text-white" link v-for="link, i in links" :key="i" :to="link.url" color="primary">
                 <template v-slot:prepend>
                     <v-icon :icon="(link.icon as any)"></v-icon>
                 </template>
@@ -38,7 +38,8 @@ const drawer = ref(true)
 const links = [
     { title: 'Statistika', icon: 'mdi-chart-bar-stacked', url: '/admin' },
     { title: 'Buyurtma', icon: 'mdi-shopping', url: '/admin/create-order' },
-    { title: 'Buyurmalar', icon: 'mdi-list-box', url: '/admin/orders' },
+    { title: 'Buyurmalar', icon: 'mdi-update', url: '/admin/orders-table' },
+    { title: 'Buyurmalar Tarixi', icon: 'mdi-list-box', url: '/admin/orders' },
     { title: 'Taomlar', icon: 'mdi-food', url: '/admin/foods' },
     { title: 'Ishchilar', icon: 'mdi-account-group', url: '/admin/users' },
 ]

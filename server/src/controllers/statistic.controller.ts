@@ -6,11 +6,11 @@ function countByDays(data: Order[]) {
     const counts: {[k: string]: number[]} = {}
     let k: string
     data.map((c) => {
-        if(k == c.created_at.toLocaleDateString()) {
+        if(k == c.createdAt.toLocaleDateString()) {
             counts[k][0] += 1
             counts[k][1] += c.total
         }else{
-            k = c.created_at.toLocaleDateString()
+            k = c.createdAt.toLocaleDateString()
             counts[k] = [1, c.total]
         }
     })
@@ -32,9 +32,9 @@ function countFoods(data: (OrderItem & {food: Partial<Food>})[]) {
 }
 
 const getDates = (gt?: string, lt?: string) => {
-    const where: any = { created_at: {} }
-    if(gt) where.created_at.gte = new Date(gt)
-    if(lt) where.created_at.lt = new Date(lt)
+    const where: any = { createdAt: {} }
+    if(gt) where.createdAt.gte = new Date(gt)
+    if(lt) where.createdAt.lt = new Date(lt)
     return where
 }
 

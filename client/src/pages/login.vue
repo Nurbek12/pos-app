@@ -3,18 +3,18 @@
         <v-main>
             <v-container fluid style="height: 100vh;" class="bg-background">
                 <v-row justify="center" align="center" class="h-100">
-                    <v-card max-width="400" width="100%" rounded="xl" flat>
+                    <v-card max-width="400" width="100%" flat border>
                         <v-card-title class="text-center text-primary">Tizimga kirish</v-card-title>
                         <v-card-text>
                             <v-row>
                                 <v-col cols="12" class="pb-0">
-                                    <v-text-field :rules="[(v: any) => !!v || 'v']" v-model="formData.login" prepend-inner-icon="mdi-account" density="comfortable" hide-details variant="outlined" rounded flat label="Login"></v-text-field>
+                                    <v-text-field :rules="[(v: any) => !!v || 'v']" v-model="formData.login" prepend-inner-icon="mdi-account" density="comfortable" hide-details variant="outlined" flat label="Login"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" class="pb-0">
-                                    <v-text-field type="password":rules="[(v: any) => !!v || 'v']" v-model="formData.password" prepend-inner-icon="mdi-lock" density="comfortable" hide-details variant="outlined" rounded flat label="Parol"></v-text-field>
+                                    <v-text-field type="password":rules="[(v: any) => !!v || 'v']" v-model="formData.password" prepend-inner-icon="mdi-lock" density="comfortable" hide-details variant="outlined" flat label="Parol"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
-                                    <v-btn @click="handleLogin()" :disabled="!formData.login.trim() || !formData.password.trim() || loading" color="primary" height="45" rounded flat block>Kirish</v-btn>
+                                    <v-btn @click="handleLogin()" :disabled="!formData.login.trim() || !formData.password.trim() || loading" color="primary" height="45" flat block>Kirish</v-btn>
                                 </v-col>
                             </v-row>
                         </v-card-text>

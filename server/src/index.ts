@@ -20,6 +20,6 @@ app.use(express.static(path.join(__dirname, '../upload')))
 app.use(express.static(path.join(__dirname, '../../client/dist')))
 
 app.use('/api', routes)
-app.get('*', async (_, res) => res.sendFile(path.join(__dirname, '../client/dist/index.html')))
+app.get('*', async (_, res) => res.sendFile(path.join(__dirname, '../../client/dist/index.html')))
 
 server.listen(PORT, HOST as any, () => console.log('server started...'))

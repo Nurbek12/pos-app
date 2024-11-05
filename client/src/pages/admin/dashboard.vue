@@ -4,13 +4,13 @@
             <v-col cols="12">
                 <v-menu :close-on-content-click="false">
                     <template #activator="{props}">
-                        <v-btn rounded color="primary" flat v-bind="props">Kunlarni belgilash</v-btn>
+                        <v-btn color="primary" flat v-bind="props">Kunlarni belgilash</v-btn>
                     </template>
-                    <v-date-picker flat rounded="xl" color="primary" mandatory hide-header multiple="range" v-model="days" @update:model-value="logging"></v-date-picker>
+                    <v-date-picker flat color="primary" mandatory hide-header multiple="range" v-model="days" @update:model-value="logging"></v-date-picker>
                 </v-menu>
             </v-col>
             <v-col cols="12" md="6">
-                <v-card rounded="xl" flat>
+                <v-card flat border>
                     <v-card-text>
                         <apexchart type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
                     </v-card-text>
@@ -20,7 +20,7 @@
                 </v-card>
             </v-col>
             <v-col cols="12" md="6">
-                <v-card rounded="xl" flat>
+                <v-card flat border>
                     <v-card-text>
                         <apexchart type="donut" height="360" :options="donut_chartOptions" :series="donut_series"></apexchart>
                     </v-card-text>

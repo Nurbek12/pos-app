@@ -6,6 +6,7 @@ export const categories = [
     { parent: "Food Menu", name: "Shaurma", image: "/images/taco.png" },
     { parent: "Food Menu", name: "KFC", image: "/images/fried-chicken.png" },
     { parent: "Food Menu", name: "Garnir", image: "/images/french-fries.png" },
+    { parent: "Food Menu", name: "Qo'shimcha", image: "/images/hot-sauce.png" },
     
     { parent: "Drink Menu", name: "Salqin Ichimliklar", image: "/images/drinks.png" },
     { parent: "Drink Menu", name: "Issiq Ichimliklar", image: "/images/tea-cup.png" },
@@ -16,9 +17,20 @@ export const categories = [
     { parent: "Pizza Menu", name: "Katta", image: "/images/pizza-big.png" },
 ]
 
-export const generatedFunction = (n: number) => {
-    var letterIndex = Math.floor((n - 1) / 99);
-    var letter = String.fromCharCode((letterIndex % 26) + 65);
-    var number = ((n - 1) % 99) + 1;
-    return letter + '-' + number;
+export const orderTypes = [
+    { title:"Yetkazib berish", value: "DELIVERY" },
+    { title:"O'zi bilan", value: "ONESELF" },
+    { title: "Stol", value: "TABLE" },
+]
+
+export const orderTypesObject = {
+    DELIVERY: "Yetkazib berish",
+    ONESELF: "O'zi bilan",
+    TABLE: "Stol",
+}
+
+export const orderTypesServices = {
+    DELIVERY: "Yetkazib berish",
+    ONESELF: "",
+    TABLE: "Xizmat ko'rsatish 5%",
 }
