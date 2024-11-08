@@ -4,28 +4,28 @@
             <v-col cols="12">
                 <v-menu :close-on-content-click="false">
                     <template #activator="{props}">
-                        <v-btn color="primary" flat v-bind="props">Kunlarni belgilash</v-btn>
+                        <v-btn color="primary" flat v-bind="props" size="x-large" class="text-h5">Kunlarni belgilash</v-btn>
                     </template>
-                    <v-date-picker flat color="primary" mandatory hide-header multiple="range" v-model="days" @update:model-value="logging"></v-date-picker>
+                    <v-date-picker class="text-h6" flat color="primary" mandatory hide-header multiple="range" v-model="days" @update:model-value="logging"></v-date-picker>
                 </v-menu>
             </v-col>
             <v-col cols="12" md="6">
-                <v-card flat border>
+                <v-card flat border class="text-h5">
                     <v-card-text>
                         <apexchart type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
                     </v-card-text>
                     <v-card-text class="text-right">
-                        <span>Jami tushum: {{ totalSum }} so'm</span>
+                        <span class="text-h5">Jami tushum: {{ totalSum }} so'm</span>
                     </v-card-text>
                 </v-card>
             </v-col>
             <v-col cols="12" md="6">
-                <v-card flat border>
+                <v-card flat border class="text-h5">
                     <v-card-text>
                         <apexchart type="donut" height="360" :options="donut_chartOptions" :series="donut_series"></apexchart>
                     </v-card-text>
                     <v-card-text class="text-right">
-                        <span>Sotilgan ovqatlar: {{ totalFoods }}</span>
+                        <span class="text-h5">Sotilgan ovqatlar: {{ totalFoods }}</span>
                     </v-card-text>
                 </v-card>
             </v-col>
@@ -40,15 +40,17 @@ import { getFoodStatistics, getOrderStatistics } from '../../api/statistic'
 
 const days = ref(new Date())
 const orders = ref<any[]>([])
-const foods = ref<any[]>([]) // TODO:
+const foods = ref<any[]>([])
 const filters = ref({
     gt: new Date(),
     lt: new Date(),
 })
+
 const series = computed(() => ([{
     name: 'Sotuvlar soni',
     data: orders.value.map(d => d?.quantity)
 }]))
+
 const chartOptions = computed(() => ({
     chart: {
         height: 350,
@@ -68,10 +70,10 @@ const chartOptions = computed(() => ({
     },
     dataLabels: {
         enabled: true,
-        offsetY: -25,
+        offsetY: 0,
         style: {
-            fontSize: '12px',
-            colors: ["#304758"]
+            fontSize: '22px',
+            colors: ["#fff"]
         }
     },
 
@@ -109,9 +111,7 @@ const chartOptions = computed(() => ({
         },
         labels: {
             show: false,
-            // formatter: function (val) {
-            //     return val + "%";
-            // }
+
         }
 
     },
@@ -134,6 +134,14 @@ const donut_chartOptions = computed(() => ({
             }
         }
     }],
+    legend: {
+        fontSize: '20px' // Set font size for legend in general
+    },
+    tooltip: {
+        style: {
+            fontSize: '25px' // Set font size for tooltip
+        }
+    }
 }))
 
 const totalSum = computed(() => {

@@ -1,14 +1,14 @@
 <template>
     <v-card flat>
         <v-card-text class="pb-0 text-primary text-h3">{{order.address}}-{{ order?.dailyNum }}</v-card-text>
-        <v-card-text class="py-2">Buyurtma raqami: #{{ (order?.dailyNum||1).toString().padStart(6, '0') }}</v-card-text>
-        <v-card-text class="py-2">Buyurtma narxi: <price :value="order?.total||0" /></v-card-text>
-        <v-card-text v-show="order.type!=='ONESELF'" class="text-subtitle-2 py-3 text-grey-darken-3">
+        <v-card-text class="py-1 text-h5">Buyurtma raqami: #{{ (order?.dailyNum||1).toString().padStart(6, '0') }}</v-card-text>
+        <v-card-text class="py-1 text-h5">Buyurtma narxi: <price :value="order?.total||0" /></v-card-text>
+        <v-card-text v-show="order.type!=='ONESELF'" class="text-h6 py-3 text-grey-darken-4">
             {{ orderTypesServices[order.type as keyof typeof orderTypesServices] }}:
             <price :value="order.serviceCharge||0" />
         </v-card-text>
         <v-card-text class="pt-0">
-            <v-table style="border: 1px solid #ccc; border-radius: 4px; background: #eee;">
+            <v-table class="text-h5" style="border: 1px solid #ccc; border-radius: 4px; background: #eee;">
                 <tbody>
                     <tr v-for="food,i in order?.orderItems||[]" :key="i">
                         <td>{{ food.food.name }}</td>
@@ -19,7 +19,7 @@
             </v-table>
         </v-card-text>
         <v-card-text class="pt-0">
-            <v-btn color="green" flat block @click="emits('close-card')">Yopish</v-btn>
+            <v-btn color="green" flat block @click="emits('close-card')" size="x-large" class="text-h5">Tasdiqlash</v-btn>
         </v-card-text>
     </v-card>
 </template>

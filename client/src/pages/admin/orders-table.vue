@@ -7,10 +7,10 @@
                         <v-data-table
                             :loading="loading"
                             @update:options="loadItems"
-                            density="comfortable"
                             hover
                             :items="items"
                             color="primary"
+                            class="text-h5"
                             items-per-page="-1"
                             :headers="headers"
                             item-value="id">
@@ -23,8 +23,15 @@
                             <template #item.total="{item}">
                                 <price :value="item.total" />
                             </template>
+                            <template #item.serviceCharge="{item}">
+                                <price :value="item.serviceCharge" />
+                            </template>
+                            <template #item.type="{item}">
+                                <span>{{orderTypesObject[item.type as keyof typeof orderTypesObject] || '-'}}</span>
+                                <span v-show="item.type==='TABLE'"> - {{ item.address }}</span>
+                            </template>
                             <template #item.actions="{index}">
-                                <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-subtitle-1" density="comfortable">
+                                <v-btn @click="viewIndex=index" color="primary" variant="flat"  class="text-h5" size="large">
                                     Ko'rish
                                 </v-btn>
                             </template>
@@ -35,7 +42,7 @@
             </v-col>
         </v-row>
     </v-container>
-    <v-dialog :model-value="viewIndex!==null" @update:model-value="viewIndex=null" max-width="500">
+    <v-dialog :model-value="viewIndex!==null" @update:model-value="viewIndex=null" max-width="750">
         <OrderCard v-if="viewIndex!==null" :order="(items[viewIndex!] as any)" @close-card="completeOrder" />
     </v-dialog>
 </template>
@@ -45,6 +52,7 @@ import { ref } from 'vue'
 import { IOrder } from '@/types'
 import Price from '@/components/price.vue'
 import { onOrderCreated } from '@/api/socket'
+import { orderTypesObject } from '@/constants'
 import OrderCard from '@/components/order-card.vue'
 import { getOrders, updateOrder } from '@/api/order'
 
@@ -55,7 +63,8 @@ const viewIndex = ref<number|null>(null)
 const headers = ref([
     { title: 'ID', key: 'id', sortable: false },
     { title: 'Buyurtma narxi', key: 'total', sortable: false },
-    { title: 'Stol Raqami', key: 'address', sortable: false },
+    { title: 'Buyurtma Turi', key: 'type', sortable: false },
+    { title: 'Xizmat narxi', key: 'serviceCharge', sortable: false },
     { title: 'Sana/Vaqt', key: 'date', sortable: false },
     { title: 'Boshqarish', key: 'actions', sortable: false },
 ])

@@ -4,16 +4,17 @@ import { IOrder, LETTER_SIZE, orderTypesObject, orderTypesServices, truncateName
 escpos.USB = require('escpos-usb'); 
 
 
-const device = new escpos.USB(); 
+const device1 = new escpos.USB(); 
+const device2 = new escpos.USB(); 
 const options = { encoding: "GB18030" };
 
-const adminPrinter = new escpos.Printer(device, options);
-const chefPrinter = new escpos.Printer(device, options);
+const adminPrinter = new escpos.Printer(device1, options);
+const chefPrinter = new escpos.Printer(device2, options);
 
 export const printAdmin = (order: IOrder) => {
     const printer = adminPrinter
 
-    device.open((error) => {
+    device1.open((error) => {
       if (error) {
         console.error("Ошибка подключения к принтеру:", error);
         return;
@@ -61,7 +62,7 @@ export const printAdmin = (order: IOrder) => {
 export const printChef = (order: IOrder) => {
   const printer = chefPrinter
 
-  device.open((error) => {
+  device2.open((error) => {
     if (error) {
       console.error("Ошибка подключения к принтеру:", error);
       return;

@@ -2,16 +2,16 @@
     <v-container fluid>
         <v-row>
             <v-col cols="12" class="d-flex justify-end align-center pb-2">
-                <v-btn @click="dialog=true" color="primary" flat>Yaratish</v-btn>
+                <v-btn @click="dialog=true" color="primary" flat class="text-h5" size="x-large">Yaratish</v-btn>
             </v-col>
             <v-col cols="12">
                 <v-card flat border>
                     <v-card-text class="px-1">
-                        <v-data-table :items="items" :headers="headers" items-per-page="-1">
+                        <v-data-table class="text-h5" :items="items" :headers="headers" items-per-page="-1">
                             <template #bottom></template>
                             <template #item.actions="{item,index}">
                                 <div class="d-flex ga-2">
-                                    <v-btn size="35" color="primary" flat @click="editItem(item, index)">
+                                    <v-btn size="40" color="primary" flat @click="editItem(item, index)">
                                         <v-icon>mdi-pencil</v-icon>
                                     </v-btn>
                                 </div>
@@ -24,20 +24,20 @@
     </v-container>
     <v-dialog v-model="dialog" max-width="550">
         <v-card>
-            <v-card-title>Ishchi yaratish</v-card-title>
+            <v-card-title class="text-h5">Ishchi yaratish</v-card-title>
             <v-card-text>
                 <v-row>
                     <v-col cols="12">
-                        <v-text-field :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.login" hide-details label="Login"></v-text-field>
+                        <v-text-field class="text-h5" :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.login" hide-details label="Login"></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                        <v-text-field :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.password" hide-details label="Password"></v-text-field>
+                        <v-text-field class="text-h5"  :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.password" hide-details label="Password"></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                        <v-select :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.role" :items="['admin','app']" item-title="name" item-value="name" hide-details label="Roli" clearable></v-select>
+                        <v-select class="text-h5" :rules="[(v: any) => !!v || 'v']" color="primary" variant="outlined" flat v-model="item.role" :items="['admin','app']" item-title="name" item-value="name" hide-details label="Roli" clearable></v-select>
                     </v-col>
                     <v-col cols="12">
-                        <v-btn height="50" @click="save" color="primary" variant="flat" block>Saqlash</v-btn>
+                        <v-btn height="50" @click="save" color="primary" variant="flat" block size="x-large" class="text-h5">Saqlash</v-btn>
                     </v-col>
                 </v-row>
             </v-card-text>

@@ -10,9 +10,9 @@
                             :loading="loading"
                             :items-length="count"
                             @update:options="loadItems"
-                            density="comfortable"
                             hover
                             :items="items"
+                             class="text-h5"
                             color="primary"
                             :headers="headers"
                             item-value="id">
@@ -25,8 +25,15 @@
                             <template #item.total="{item}">
                                 <price :value="item.total" />
                             </template>
+                            <template #item.serviceCharge="{item}">
+                                <price :value="item.serviceCharge" />
+                            </template>
+                            <template #item.type="{item}">
+                                <span>{{orderTypesObject[item.type as keyof typeof orderTypesObject] || '-'}}</span>
+                                <span v-show="item.type==='TABLE'"> - {{ item.address }}</span>
+                            </template>
                             <template #item.actions="{index}">
-                                <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-subtitle-1" density="comfortable">
+                                <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-h5" size="large">
                                     Ko'rish
                                 </v-btn>
                             </template>
@@ -43,7 +50,7 @@
     </v-container>
     
             
-    <v-dialog :model-value="viewIndex!==null" @update:model-value="viewIndex=null" max-width="500">
+    <v-dialog :model-value="viewIndex!==null" @update:model-value="viewIndex=null" max-width="750">
         <OrderCard v-if="viewIndex!==null" :order="(items[viewIndex!] as any)" @close-card="viewIndex=null" />
     </v-dialog>
 </template>
@@ -52,6 +59,7 @@
 import { ref } from 'vue'
 import { Order } from '@/types'
 import { getOrders } from '@/api/order'
+import { orderTypesObject } from '@/constants'
 import Price from '@/components/price.vue'
 import OrderCard from '@/components/order-card.vue'
 
@@ -65,8 +73,8 @@ const viewIndex = ref<number|null>(null);
 const headers = ref([
     { title: 'ID', key: 'id', sortable: false },
     { title: 'Buyurtma narxi', key: 'total', sortable: false },
-    { title: 'Stol Raqami', key: 'address', sortable: false },
-    { title: 'Stol Raqami', key: 'type', sortable: false },
+    { title: 'Buyutrma turi', key: 'type', sortable: false },
+    { title: 'Xizmat narxi', key: 'serviceCharge', sortable: false },
     { title: 'Sana/Vaqt', key: 'date', sortable: false },
     { title: 'Boshqarish', key: 'actions', sortable: false },
 ])

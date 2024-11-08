@@ -1,20 +1,20 @@
 <template>
-    <v-navigation-drawer v-model="drawer" :rail="true" permanent width="250" elevation="0" :expand-on-hover="true">
+    <v-navigation-drawer v-model="drawer" :rail="true" permanent width="290" rail-width="65" elevation="0" :expand-on-hover="true">
         <v-list :lines="false" nav variant="flat">
-            <v-list-item exact active-class="text-white" link v-for="link, i in links" :key="i" :to="link.url" color="primary">
+            <v-list-item height="50" exact active-class="text-white" link v-for="link, i in links" :key="i" :to="link.url" color="primary">
                 <template v-slot:prepend>
-                    <v-icon :icon="(link.icon as any)"></v-icon>
+                    <v-icon size="30" :icon="(link.icon as any)"></v-icon>
                 </template>
-                <v-list-item-title>{{ link.title }}</v-list-item-title>
+                <v-list-item-title class="text-h5 py-1">{{ link.title }}</v-list-item-title>
             </v-list-item>
         </v-list>
         <template #append>
-            <v-list>
+            <v-list nav>
                 <v-list-item link @click="store.setAuthData(null, null)">
                     <template #prepend>
-                        <v-icon>mdi-logout-variant</v-icon>
+                        <v-icon size="30">mdi-logout-variant</v-icon>
                     </template>
-                    <v-list-item-title>Chiqish</v-list-item-title>
+                    <v-list-item-title class="text-h5 py-1">Chiqish</v-list-item-title>
                 </v-list-item>
             </v-list>
         </template>

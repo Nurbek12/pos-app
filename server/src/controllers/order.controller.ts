@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma'
 import { Request, Response } from 'express'
-// import { printChek } from '../config/printer'
+// import { printAdmin, printChef } from '../config/printer'
 
 async function getNextDailyNum() {
     const currentDate = new Date().toISOString().split('T')[0];
@@ -62,18 +62,33 @@ export const findOrders = async (req: Request, res: Response) => {
 
 export const createOrder = async (req: Request, res: Response) => {
     try {
-        const dailyNum = await getNextDailyNum()
+        let orderId
+        let order
+        const hasOrder = await prisma.order.findFirst({ where: { AND: [{ type: "TABLE", address: req.body.address, status: "CREATED" }] } })
+
         const { items, ...data } = req.body
-        const result = await prisma.order.create({ data: {
-            dailyNum,
-            ...data,
-        } })
+
+        if(!hasOrder?.id) {
+            const dailyNum = await getNextDailyNum()
+            order = await prisma.order.create({ data: {
+                dailyNum,
+                ...data,
+            } })
+            orderId = order.id
+        } else {
+            order = await prisma.order.update({ where: { id: hasOrder.id }, data: {
+                serviceCharge: { increment: req.body.serviceCharge },
+                total: { increment: req.body.total },
+            } })
+            orderId = hasOrder.id
+        }
+
         const orderItems = await Promise.all(items.map(async (item: any) => {
             return await prisma.orderItem.create({
                 data: {
                     foodId: item.foodId,
                     quantity: item.quantity,
-                    orderId: result.id
+                    orderId
                 },
                 include: {
                     food: {
@@ -86,8 +101,8 @@ export const createOrder = async (req: Request, res: Response) => {
                 }
             })
         }))
-        // printChek({ ...result, orderItems }, 'CHEF')
-        res.json({ ...result, orderItems })
+        // printChef({ ...order, orderItems })
+        res.json({ ...order, orderItems })
     } catch (error) {
         console.log(error);
     }
@@ -106,9 +121,9 @@ export const updateOrder = async (req: Request, res: Response) => {
                 }
             }
         })
-        // if(req.body.stauts === "COMPLETED") {
-        //     printChek(order, 'ADMIN')
-        // }
+        if(req.body.stauts === "COMPLETED") {
+            // printChef(order)
+        }
         res.json(true)
     } catch (error) {
         console.log(error)
