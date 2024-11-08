@@ -1,5 +1,5 @@
 import escpos from 'escpos'
-import { IOrder, LETTER_SIZE, orderTypesObject, orderTypesServices, truncateName } from './constants'
+import { IOrder, LETTER_SIZE } from './constants'
 
 escpos.USB = require('escpos-usb'); 
 
@@ -27,35 +27,54 @@ export const printAdmin = (order: IOrder) => {
       printer
         .align('CT')
         .style('B')
-        .size(1, 2)
+        .size(2, 2)
         .text("FISH & CHICKEN")
+        .style('NORMAL')
+        .align('LT')
+        .size(1, 1)
         .text(`Buyurtma: ${order.dailyNum}-${order.address}`)
         .text(`Kun: ${formattedDate}`)
         .text(`Soat: ${formattedTime}`)
         .text('*'.repeat(LETTER_SIZE))
+        .size(2, 2)
+        .text(`${order.type === 'TABLE' && 'Stol: '}${order.address}`)
         .size(1, 1)
-        .text(`Stol: ${order.address}`)
         .text('*'.repeat(LETTER_SIZE));
 
-      order.orderItems.forEach(item => {
-        const itemName = truncateName(item.food.name, 20); // Adjust maxLength as needed
-        const quantity = item.quantity;
-        const price = item.food.price.toFixed(2);
-        const total = (quantity * item.food.price).toFixed(2);
-
-        const itemLine = `${itemName.padEnd(20)}${quantity}x`.padEnd(24) + `${price} $`.padStart(6) + `${total} $`.padStart(10);
-        printer.text(itemLine);
-      });
-
-      // const serviceCharge = (order.total * order.serviceCharge).toFixed(2);
-      const totalAmount = (order.total).toFixed(2);
+        order.orderItems.forEach(item => {
+          const foodName = item.food.name;
+          const quantity = item.quantity;
+          const price = item.food.price;
+          const totalPrice = price * quantity;
+    
+          // Если название еды слишком длинное, разбиваем его на строки по 32 символа
+          const foodNameLines = foodName.match(/.{1,32}/g) || [];
+          foodNameLines.forEach((line, index) => {
+            // Печатаем название еды, добавляя количество и цены только на первой строке
+            if (index === 0) {
+              const itemLine = `${line.padEnd(20)} ${quantity} x ${price} ${totalPrice}`;
+              printer.text(itemLine);
+            } else {
+              // Оставшиеся строки просто печатаются без дополнительных данных
+              printer.text(line);
+            }
+          });
+        });
 
       printer
+        .size(1, 1)
         .text('*'.repeat(LETTER_SIZE))
-        .text(`Xizmat kursatish 5%`.padEnd(13))
-        .text(`Jami:`.padEnd(25) + `${totalAmount} $`.padStart(8))
+        .text(
+          order.type === 'DELIVERY' ?
+          'Yetkazib berish 10,000 s\'om'
+          : order.type === 'TABLE' ?
+          'Xizmat kursatish 5%: ' + order.serviceCharge +' s\'om'
+          : ''
+        )
+        .align('RT')
+        .size(2, 2)
+        .text(`Jami: ${order.total.toLocaleString()}`)
         .cut()
-        .close();
   })
 }
 
@@ -68,34 +87,38 @@ export const printChef = (order: IOrder) => {
       return;
     }
 
-    const date = order.createdAt;
-    const formattedDate = date.toLocaleDateString('en-GB');
-    const formattedTime = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
     printer
       .align('CT')
       .style('B')
-      .size(1, 2)
-      .text("FISH & CHICKEN")
+      .size(2, 2)
+      .text('Fish & Chicken')
+      .size(1, 1) // Маленький шрифт для остальных строк
       .text(`# ${order.address}-${order.dailyNum}`)
-      .text('*'.repeat(LETTER_SIZE)) // 37 to match total width including borders
-      .size(1, 1);
+      .text('*'.repeat(LETTER_SIZE))
+      .align('LT');
 
+    // Печать каждого элемента заказа с количеством
     order.orderItems.forEach(item => {
-      const itemName = truncateName(item.food.name, 20); // Adjust maxLength as needed
+      const foodName = item.food.name;
       const quantity = item.quantity;
-      const itemLine = `${itemName.padEnd(20)}${quantity}x`.padEnd(LETTER_SIZE); // Ensure the line fits in 32 characters
-      printer.text(itemLine);
+      const line = `${foodName} ${quantity} ta`;
+      
+      // Если строка длинная, разбиваем её
+      const lines = line.match(/.{1,32}/g) || [];
+      lines.forEach(part => printer.text(part));
     });
 
+    // Устанавливаем увеличенный шрифт для времени и даты
     printer
-      .text('*'.repeat(LETTER_SIZE)) // Footer line
+      .text('*'.repeat(LETTER_SIZE)) 
       .align('CT')
-      .text(formattedTime) // Right align the time
-      .text('*'.repeat(LETTER_SIZE)) // Divider line
-      .align('CT')
-      .text(formattedDate) // Right align the date
+      .size(2, 2)
+      .text(order.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) // Время
+      .size(1, 1)
+      .text('*'.repeat(LETTER_SIZE)) 
+      .text(order.createdAt.toLocaleDateString()) // Дата
       .cut()
       .close();
+
   })
 }
