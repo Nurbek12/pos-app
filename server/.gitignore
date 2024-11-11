@@ -1,0 +1,9 @@
+/node_modules
+/Todo.todo
+# /upload/
+# /upload/!t.txt
+/.env
+/dist
+/prisma/seed.js
+/prisma/dev.sqlite
+/prisma/migrations
