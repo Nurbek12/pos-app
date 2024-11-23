@@ -36,12 +36,14 @@
                                 <span v-show="item.type==='TABLE'"> - {{ item.address }}</span>
                             </template>
                             <template #item.actions="{item,index}">
-                                <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-h5" size="large">
-                                    Ko'rish
-                                </v-btn>
-                                <v-btn :disabled="deletedIndex===index" @click="handleDeleteOrder(item.id, index)" color="red" variant="flat" class="text-h5" size="large">
-                                    O'chirish
-                                </v-btn>
+                                <div class="d-flex ga-2 align-center">
+                                    <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-h5" size="large">
+                                        Ko'rish
+                                    </v-btn>
+                                    <v-btn :disabled="deletedIndex===index" @click="handleDeleteOrder(item.id, index)" color="primary" variant="flat" class="text-h5" size="large">
+                                        O'chirish
+                                    </v-btn>
+                                </div>
                             </template>
                             <template #bottom></template>
                         </v-data-table>

@@ -13,10 +13,8 @@ export default defineConfig({
         enabled: false,
       },
       workbox: {
-        // clientsClaim: true,
-        // skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}"],
-        cleanupOutdatedCaches: false,
+        cleanupOutdatedCaches: true,
       },
       manifest: {
         name: "POS",
@@ -27,12 +25,6 @@ export default defineConfig({
         scope: "./",
         start_url: "./",
         icons: [
-          {
-            src: "icons/icon-36x36.png",
-            sizes: "36x36",
-            type: "image/png",
-            purpose: "maskable any",
-          },
           {
             src: "icons/icon-48x48.png",
             sizes: "48x48",
