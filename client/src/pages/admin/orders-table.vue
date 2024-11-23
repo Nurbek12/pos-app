@@ -33,10 +33,15 @@
                                 <span>{{orderTypesObject[item.type as keyof typeof orderTypesObject] || '-'}}</span>
                                 <span v-show="item.type==='TABLE'"> - {{ item.address }}</span>
                             </template>
-                            <template #item.actions="{index}">
-                                <v-btn @click="viewIndex=index" color="primary" variant="flat"  class="text-h5" size="large">
-                                    Ko'rish
-                                </v-btn>
+                            <template #item.actions="{item,index}">
+                                <div class="d-flex align-center ga-2">
+                                    <v-btn @click="viewIndex=index" color="primary" variant="flat"  class="text-h5" size="large">
+                                        Ko'rish
+                                    </v-btn>
+                                    <v-btn :disabled="deletedIndex===index" @click="handleDeleteOrder(item.id, index)" color="primary" variant="flat"  class="text-h5" size="large">
+                                        Bekor qilish
+                                    </v-btn>
+                                </div>
                             </template>
                             <template #bottom></template>
                         </v-data-table>
@@ -54,15 +59,15 @@
 import { ref } from 'vue'
 import { IOrder } from '@/types'
 import Price from '@/components/price.vue'
-// import { onOrderCreated } from '@/api/socket'
 import { orderTypesObject } from '@/constants'
 import OrderCard from '@/components/order-card.vue'
-import { getOrders, updateOrder } from '@/api/order'
+import { getOrders, updateOrder, deleteOrder } from '@/api/order'
 
 const loading = ref(true)
-const createLoading = ref(false)
 const items = ref<IOrder[]>([])
+const createLoading = ref(false)
 const viewIndex = ref<number|null>(null)
+const deletedIndex = ref<number|null>(null)
 
 const headers = ref([
     { title: 'ID', key: 'id', sortable: false },
@@ -95,7 +100,13 @@ const completeOrder = async () => {
     createLoading.value = false
 }
 
-// onOrderCreated((order: IOrder) => {
-//     items.value.unshift(order)
-// })
+const handleDeleteOrder = async (id: number, index: number) => {
+    if(!confirm('Buyurtmani bekor qilmoqchimisiz?')) return
+    deletedIndex.value = index
+
+    await deleteOrder(id)
+    items.value.splice(index, 1)
+    deletedIndex.value = null
+    alert('Buyurtmani bekor qilindi✅')
+}
 </script>

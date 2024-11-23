@@ -7,7 +7,7 @@ export interface IOrder extends Order {
     )[]
 }
 
-export const SERVICE_PRICE = 5
+export const SERVICE_PRICE = 0
 
 export const truncateName = (name: string, maxLength: number) => {
   return name.length > maxLength

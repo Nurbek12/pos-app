@@ -3,15 +3,10 @@ import cors from 'cors'
 import routes from './routes'
 import express from 'express'
 import { createServer } from 'http'
-// import socket from './config/socket'
-import { Server } from 'socket.io'
 import { PORT, HOST } from './config/keys'
 
 const app = express()
 const server = createServer(app)
-// const io = new Server(server, { cors: {origin:"*", credentials: true} })
-
-// socket(io)
 
 app.use(cors())
 app.use(express.json())
@@ -25,17 +20,17 @@ app.get('*', async (_, res) => res.sendFile(path.join(__dirname, '../../client/d
 server.listen(PORT, HOST as any, () => console.log('server started...'))
 
 process.on('SIGTERM', () => {
-    console.log('Shutting down server...');
-    server.close(() => {
-      console.log('Server has been shut down');
-      process.exit(0);
-    });
+  console.log('Shutting down server...');
+  server.close(() => {
+    console.log('Server has been shut down');
+    process.exit(0);
   });
-  
-  process.on('SIGINT', () => {
-    console.log('Shutting down server...');
-    server.close(() => {
-      console.log('Server has been shut down');
-      process.exit(0);
-    });
+});
+
+process.on('SIGINT', () => {
+  console.log('Shutting down server...');
+  server.close(() => {
+    console.log('Server has been shut down');
+    process.exit(0);
   });
+});

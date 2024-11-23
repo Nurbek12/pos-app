@@ -1,9 +1,8 @@
-import { printAdmin, printChef } from '../config/printer';
+// import { printAdmin, printChef } from '../config/printer';
 import { prisma } from '../config/prisma'
 import { Request, Response } from 'express'
-// import { printAdmin, printChef } from '../config/printer'
 
-async function getNextDailyNum() {
+const getNextDailyNum = async () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const lastOrder = await prisma.order.findFirst({
       where: {
@@ -18,6 +17,11 @@ async function getNextDailyNum() {
     })
   
     return lastOrder ? lastOrder.dailyNum + 1 : 1;
+}
+
+const handleDeleteOrder = async (id: number) => {
+    await prisma.orderItem.deleteMany({ where: { orderId: id } })
+    await prisma.order.delete({ where: { id } })
 }
 
 export const findOrders = async (req: Request, res: Response) => {
@@ -39,6 +43,12 @@ export const findOrders = async (req: Request, res: Response) => {
                 skip: (page - 1) * limit,
                 take: +limit,
                 include: {
+                    creator: {
+                        select: {
+                            id: true,
+                            login: true,
+                        }
+                    },
                     orderItems: {
                         include: {
                             food: {
@@ -65,22 +75,46 @@ export const createOrder = async (req: Request, res: Response) => {
     try {
         let order
         let orderId
+        console.log((req as any).user.id);
+        
         const hasOrder = await prisma.order.findFirst({ where: { AND: [{ type: "TABLE", address: req.body.address, status: "CREATED" }] } })
 
         const { items, ...data } = req.body
 
         if(!hasOrder?.id) {
             const dailyNum = await getNextDailyNum()
-            order = await prisma.order.create({ data: {
-                dailyNum,
-                ...data,
-            } })
+            order = await prisma.order.create({
+                data: {
+                    creatorId: (req as any).user.id,
+                    dailyNum,
+                    ...data,
+                },
+                include: {
+                    creator: {
+                        select: {
+                            id: true,
+                            login: true,
+                        }
+                    },
+                }
+            })
             orderId = order.id
         } else {
-            order = await prisma.order.update({ where: { id: hasOrder.id }, data: {
-                serviceCharge: { increment: req.body.serviceCharge },
-                total: { increment: req.body.total },
-            } })
+            order = await prisma.order.update({
+                where: { id: hasOrder.id },
+                data: {
+                    serviceCharge: { increment: req.body.serviceCharge },
+                    total: { increment: req.body.total },
+                },
+                include: {
+                    creator: {
+                        select: {
+                            id: true,
+                            login: true,
+                        }
+                    },
+                }
+            })
             orderId = hasOrder.id
         }
 
@@ -103,15 +137,14 @@ export const createOrder = async (req: Request, res: Response) => {
             })
         }))
 
-        const printStatus = await printChef({ ...order, orderItems })
+        // const printStatus = await printChef({ ...order, orderItems })
 
-        if(printStatus.status === 'error') {
-            await prisma.orderItem.deleteMany({ where: { orderId: order.id } })
-            await prisma.order.delete({ where: { id: order.id } })
-            res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
-        }else{
+        // if(printStatus.status === 'error') {
+        //     await handleDeleteOrder(order.id)
+        //     res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
+        // }else{
             res.json({ ...order, orderItems })
-        }
+        // }
     } catch (error) {
         console.log(error);
     }
@@ -132,12 +165,12 @@ export const updateOrder = async (req: Request, res: Response) => {
         })
 
         
-        const printStatus = await printAdmin(order as any);
+        // const printStatus = await printAdmin(order as any);
 
-        if(printStatus.status === 'error') {
-            res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
-            return
-        }
+        // if(printStatus.status === 'error') {
+        //     res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
+        //     return
+        // }
         
         await prisma.order.update({ where: {
             id: +req.params.id}, 
@@ -150,6 +183,16 @@ export const updateOrder = async (req: Request, res: Response) => {
                 }
             }
         })
+        
+        res.json({ status: "success" })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const deleteOrder = async (req: Request, res: Response) => {
+    try {
+        await handleDeleteOrder(+req.params.id)
         
         res.json({ status: "success" })
     } catch (error) {

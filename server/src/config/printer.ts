@@ -5,9 +5,6 @@ escpos.USB = require("escpos-usb");
 escpos.Network = require("escpos-network");
 
 const deviceAdmin = new escpos.USB();
-const deviceChef = new escpos.Network("192.168.123.100");
-
-const chefPrinter = new escpos.Printer(deviceChef, { encoding: "UTF-8" });
 
 // Команды управления принтером
 const COMMANDS = {
@@ -135,6 +132,7 @@ export const printAdmin = async (order: IOrder) => {
         );
       }
 
+
       // Итоговая сумма
       printText(printer, `Jami: ${order.total} s'om\n`, {
         bold: true,
@@ -152,42 +150,26 @@ export const printAdmin = async (order: IOrder) => {
   }
 };
 
-// Функция проверки статуса принтера
-export const checkPrinterStatus = async () => {
+export const printChef = async (order: IOrder) => {
   try {
+    // Переинициализируем устройство и принтер для каждого вызова
+    const deviceChef = new escpos.Network("192.168.123.254");
+    const chefPrinter = new escpos.Printer(deviceChef, { encoding: "UTF-8" });
+
+    // Открываем соединение с принтером
     await new Promise((resolve, reject) => {
-      deviceAdmin.open((error) => {
+      deviceChef.open((error) => {
         if (error) {
-          reject(new Error(`Ошибка подключения к принтеру: ${error.message}`));
+          console.error("Ошибка подключения к принтеру шефа:", error);
+          reject(error);
           return;
         }
         resolve(true);
       });
     });
 
-    return {
-      status: "connected",
-      message: "Принтер подключен и готов к работе",
-    };
-  } catch (error: any) {
-    return { status: "error", message: `Ошибка принтера: ${error.message}` };
-  }
-};
-
-export const printChef = async (order: IOrder) => {
-  try {  
+    // Печать чека
     await new Promise((resolve, reject) => {
-      deviceChef.open((error) => {
-        if (error) {
-          console.error("Ошибка подключения к принтеру шефа:", error);
-          return;
-        }
-        resolve(true);
-      });
-    })
-
-    await new Promise((resolve, reject) => {
-      // Шапка квитанции
       chefPrinter
         .style("NORMAL")
         .size(1, 1)
@@ -206,33 +188,28 @@ export const printChef = async (order: IOrder) => {
         .text("")
         .align("LT")
         .style("IU");
-  
+
       order.orderItems.forEach((item) => {
         const foodName = item.food.name;
         const quantity = item.quantity;
-  
-        // Формируем строку с выравниванием по ширине 32 символа
+
         const justifyLine = (name: any, qty: any, width = 24) => {
-          const line = `${name} ${qty}`; // Начальная строка с пробелом между названием и количеством
-          if (line.length >= width) return line.slice(0, width); // Если строка уже длиннее нужной длины, обрезаем
-  
-          const spacesNeeded = width - line.length; // Количество пробелов для заполнения
-          return name + " ".repeat(spacesNeeded) + qty; // Строка с заполнением пробелами
+          const line = `${name} ${qty}`;
+          if (line.length >= width) return line.slice(0, width);
+
+          const spacesNeeded = width - line.length;
+          return name + " ".repeat(spacesNeeded) + qty;
         };
-  
-        // Получаем строку с выравниванием
+
         const line = justifyLine(foodName, quantity);
-  
-        // Разбиваем длинные строки по 24 символа и отправляем на печать
         const lines = line.match(/.{1,24}/g) || [];
         lines.forEach((part) => chefPrinter.text(part));
       });
-  
-      // Подвал квитанции
+
       chefPrinter
         .style("NORMAL")
         .text("")
-        .text("-".repeat(24)) // Линия-разделитель
+        .text("-".repeat(24))
         .align("CT")
         .size(1, 1)
         .text(
@@ -242,16 +219,19 @@ export const printChef = async (order: IOrder) => {
           })}` +
             "  |  " +
             `${order.createdAt.toLocaleDateString()}`
-        ) // Время
-        .text("-".repeat(24)) // Линия-разделитель
-        .feed(1) // Отступ внизу
+        )
+        .text("-".repeat(24))
+        .feed(1)
         .cut()
         .close();
 
-      resolve(true)
-    })
+      resolve(true);
+    });
 
-    return { status: "success" }
+    // Закрываем соединение после печати
+    deviceChef.close();
+
+    return { status: "success" };
   } catch (error: any) {
     return { status: "error", message: `Ошибка принтера: ${error.message}` };
   }

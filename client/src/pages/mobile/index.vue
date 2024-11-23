@@ -16,7 +16,7 @@
             </v-navigation-drawer>
             <v-container fluid class="pa-2">
                 <v-sheet color="surface" class="py-2" border>
-                    <v-data-table :headers="headers" :items="groups[category]||[]">
+                    <v-data-table :headers="headers" :items="groups[category]||[]" items-per-page="-1">
                         <template #bottom></template>
                         <template #item.price="{item}">
                             <price :value="item.price" />

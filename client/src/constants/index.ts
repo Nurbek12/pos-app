@@ -1,4 +1,4 @@
-export const SERVICE_PRICE = 5
+export const SERVICE_PRICE = 0
 
 export const categories = [
     { parent: "Food Menu", name: "Burger", image: "/images/burger.png" },
