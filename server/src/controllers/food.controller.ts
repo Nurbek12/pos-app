@@ -13,6 +13,7 @@ export const findFoods = async (req: Request, res: Response) => {
 export const createFood = async (req: Request, res: Response) => {
     try {
         if(req.file) req.body.image = req.file.filename
+        if(req.body.price) req.body.price = +req.body.price
         const result = await prisma.food.create({
             data: req.body
         })
@@ -24,6 +25,7 @@ export const createFood = async (req: Request, res: Response) => {
 
 export const updateFood =  async (req: Request, res: Response) => {
     try {
+        if(req.body.price) req.body.price = +req.body.price
         const result = await prisma.food.update({ where: { id: +req.params.id }, data: req.body})
         res.json(result)
     } catch (error) {
