@@ -1,4 +1,4 @@
-// import { printAdmin, printChef } from '../config/printer';
+import { printAdmin, printChef } from '../config/printer';
 import { prisma } from '../config/prisma'
 import { Request, Response } from 'express'
 
@@ -137,14 +137,14 @@ export const createOrder = async (req: Request, res: Response) => {
             })
         }))
 
-        // const printStatus = await printChef({ ...order, orderItems })
+        const printStatus = await printChef({ ...order, orderItems })
 
-        // if(printStatus.status === 'error') {
-        //     await handleDeleteOrder(order.id)
-        //     res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
-        // }else{
+        if(printStatus.status === 'error') {
+            await handleDeleteOrder(order.id)
+            res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
+        }else{
             res.json({ ...order, orderItems })
-        // }
+        }
     } catch (error) {
         console.log(error);
     }
@@ -165,12 +165,12 @@ export const updateOrder = async (req: Request, res: Response) => {
         })
 
         
-        // const printStatus = await printAdmin(order as any);
+        const printStatus = await printAdmin(order as any);
 
-        // if(printStatus.status === 'error') {
-        //     res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
-        //     return
-        // }
+        if(printStatus.status === 'error') {
+            res.json({ status: 'PRINTER_ERROR', message: printStatus.message })
+            return
+        }
         
         await prisma.order.update({ where: {
             id: +req.params.id}, 
