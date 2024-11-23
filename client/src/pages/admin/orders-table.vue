@@ -107,6 +107,6 @@ const handleDeleteOrder = async (id: number, index: number) => {
     await deleteOrder(id)
     items.value.splice(index, 1)
     deletedIndex.value = null
-    alert('Buyurtmani bekor qilindi✅')
+    alert('Buyurtma bekor qilindi✅')
 }
 </script>

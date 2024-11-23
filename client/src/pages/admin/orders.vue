@@ -35,9 +35,12 @@
                                 <span>{{orderTypesObject[item.type as keyof typeof orderTypesObject] || '-'}}</span>
                                 <span v-show="item.type==='TABLE'"> - {{ item.address }}</span>
                             </template>
-                            <template #item.actions="{index}">
+                            <template #item.actions="{item,index}">
                                 <v-btn @click="viewIndex=index" color="primary" variant="flat" class="text-h5" size="large">
                                     Ko'rish
+                                </v-btn>
+                                <v-btn :disabled="deletedIndex===index" @click="handleDeleteOrder(item.id, index)" color="red" variant="flat" class="text-h5" size="large">
+                                    O'chirish
                                 </v-btn>
                             </template>
                             <template #bottom></template>
@@ -61,9 +64,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { IOrder } from '@/types'
-import { getOrders } from '@/api/order'
-import { orderTypesObject } from '@/constants'
 import Price from '@/components/price.vue'
+import { orderTypesObject } from '@/constants'
+import { getOrders, deleteOrder } from '@/api/order'
 import OrderCard from '@/components/order-card.vue'
 
 const page = ref(1)
@@ -71,7 +74,8 @@ const count = ref(0);
 const loading = ref(true);
 const itemsPerPage = ref(25)
 const items = ref<IOrder[]>([])
-const viewIndex = ref<number|null>(null);
+const viewIndex = ref<number|null>(null)
+const deletedIndex = ref<number|null>(null)
 
 const headers = ref([
     { title: 'ID', key: 'id', sortable: false },
@@ -93,5 +97,15 @@ const loadItems =  async () => {
     items.value = data.result
     count.value = data.total
     loading.value = false
+}
+
+const handleDeleteOrder = async (id: number, index: number) => {
+    if(!confirm('Buyurtmani o\'chirmoqchimisiz?')) return
+    deletedIndex.value = index
+
+    await deleteOrder(id)
+    items.value.splice(index, 1)
+    deletedIndex.value = null
+    alert('Buyurtma o\'chirildi✅')
 }
 </script>
